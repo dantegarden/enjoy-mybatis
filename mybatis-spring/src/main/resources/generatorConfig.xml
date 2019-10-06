@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <!--引入配置-->
+    <properties resource="db.properties" />
+    <!--指定驱动包的位置-->
+    <classPathEntry location="${class_path}"/>
+    <!--context 生成一组对象的环境
+            id 唯一标识，必须有
+            defaultModelType 指定生成对象的样式
+                1.Conditional 类似hierarchical
+                2.flat 所有内容（主键，blob）全部生成在一个对象里，推荐使用
+                3.hierarchical 主键生成一个XXKey对象（key class） Blob等单独生成一个对象，其他简单类型的属性生成在同一个对象中
+            targetRuntime
+                1.MyBatis3 默认值，生成基于mybatis3.0以上版本的内容，包括XXXByExample
+                2.MyBatis3Simple，类似MyBatis3，但没有Example
+    -->
+    <context id="my_context" targetRuntime="MyBatis3" defaultModelType="flat">
+
+        <!--生成java文件的编码-->
+        <property name="javaFileEncoding" value="UTF-8"/>
+
+        <!--注释生成器-->
+        <commentGenerator>
+            <!--是否去除自动生成的注解，默认false-->
+            <property name="suppressAllComments" value="true"/>
+            <!--注释中不包含时间戳-->
+            <property name="suppressDate" value="true"/>
+            <!--是否包含数据库表的注释信息-->
+            <property name="addRemarkComments" value="true"/>
+        </commentGenerator>
+
+        <!--数据库连接信息-->
+        <jdbcConnection driverClass="${db.driver}" connectionURL="${db.url}"
+                        userId="${db.username}" password="${db.password}" />
+
+        <!--生成实体类
+            必要元素。负责1 key类（见context的defaultModelType）2.java类 3.查询类
+             targetPackage 生成的类放在哪个包，受enableSubPackages属性控制
+             targetProject 目标项目，指定一个存在的目录，生成的内容会放到指定目录中，如果目录不存在，他也不会自动创建-->
+        <javaModelGenerator targetPackage="com.enjoy.mybatis.com.enjoy.myorm.model.entity" targetProject="${project_src}" >
+            <!--实体的通用父类 table中的rootClass可以覆盖此选项
+                注意：如果在key class或record class中有root class相同的属性，MBG就不会重新生成这些属性了
+                包括：属性名相同，类型相同，有相同的getter/setter-->
+<!--            <property name="rootClass" value="com.enjoy.mybatis.bean.BaseEntity"/>-->
+        </javaModelGenerator>
+
+        <!--生成mapper.xml
+            targetPackage 生成的文件放在哪里 默认在resources/mapper下 受enableSubPackages属性控制
+            targetProject 目标项目，指定一个存在的目录，生成的内容会放到指定目录中，如果目录不存在，他也不会自动创建-->
+        <sqlMapGenerator targetPackage="." targetProject="${project_mapper_xml}" />
+
+        <!--生成Mapper.java
+            如果没有配置，则不会生成Mapper.java
+            type 选择怎么生成mapper接口
+                1.ANNOTATEDMAPPER 生成单个接口文件，通过注解使用Mybatis，没有xml文件
+                2.MIXEDMAPPER 使用混合配置，会生成Mapper接口，并适当添加注解，也会生成xml文件
+                3.XMLMAPPER 生成接口文件，纯粹依赖xml配置文件
+            -->
+        <javaClientGenerator type="XMLMAPPER" targetPackage="com.enjoy.mybatis.mapper" targetProject="${project_src}" >
+
+        </javaClientGenerator>
+
+        <!--schema数据库table指定
+            schema 库名
+            tableName 要生成的表名 如果tableName是%，则全部生成
+
+        -->
+        <table schema="mybatis_test" tableName="sys_org">
+            <generatedKey column="id" sqlStatement="MySql" />
+        </table>
+    </context>
+</generatorConfiguration>

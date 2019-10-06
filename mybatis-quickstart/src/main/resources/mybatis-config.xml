@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <properties resource="db.properties" />
+
+    <settings>
+        <!-- 全局mapper关闭二级缓存-->
+        <setting name="cacheEnabled" value="false"/>
+        <!--自动映射时使用下划线转驼峰-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <!--调用映射pojo的任何方法都会触发懒加载，禁用此项-->
+        <setting name="aggressiveLazyLoading" value="false"/>
+    </settings>
+
+    <!--别名定义-->
+    <typeAliases>
+        <package name="com.enjoy.quickstart.com.enjoy.myorm.model"/>
+    </typeAliases>
+
+    <!--插件-->
+    <plugins>
+        <plugin interceptor="com.enjoy.quickstart.plugin.SlowSqlInterceptor">
+            <property name="threshold" value="1000"/>
+        </plugin>
+    </plugins>
+
+    <!--配置environment环境-->
+    <environments default="dev">
+        <environment id="dev">
+            <transactionManager type="JDBC" />
+            <dataSource type="UNPOOLED">
+                <property name="driver" value="${db.driver}"/>
+                <property name="username" value="${db.username}"/>
+                <property name="password" value="${db.password}"/>
+                <property name="url" value="${db.url}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!--映射文件，mapper的配置文件-->
+    <mappers>
+        <!--直接映射到响应的mapper.xml文件-->
+        <mapper resource="mapper/SysUserMapper.xml" />
+        <mapper resource="mapper/SysOrgMapper.xml" />
+    </mappers>
+</configuration>

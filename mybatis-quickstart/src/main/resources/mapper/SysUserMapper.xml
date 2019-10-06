@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 命名空间 -->
+<mapper namespace="com.enjoy.quickstart.mapper.SysUserMapper">
+	<!--二级缓存开关， 需要先打开cacheEnabled总开关-->
+<!--	<cache eviction="FIFO" flushInterval="60000" size="512" readOnly="true"></cache>-->
+
+	<resultMap id="baseResultMap" type="SysUser">
+		<!--当没有无参构造时使用constructor子标签-->
+		<!--<constructor>
+			<idArg column="id" javaType="Long" jdbcType="BIGINT"/>
+			<arg column="username" javaType="String" />
+			<arg column="password" javaType="String"  />
+			<arg column="nickname" javaType="String"  />
+			<arg column="delete_status" javaType="Integer"  />
+			<arg column="create_time" javaType="Date"  />
+			<arg column="update_time" javaType="Date"  />
+			<arg column="org_id" javaType="Long"  />
+		</constructor>-->
+		<id column="id" property="id" jdbcType="BIGINT"/>
+		<result column="username" property="username" />
+		<result column="password" property="password"  />
+		<result column="nickname" property="nickname"  />
+		<result column="delete_status" property="deleteStatus"  />
+		<result column="create_time" property="createTime"  />
+		<result column="update_time" property="updateTime"  />
+		<result column="org_id" property="orgId"  />
+	</resultMap>
+
+	<sql id="base_column_list">
+		id, username, password, nickname, create_time, update_time, delete_status, org_id
+	</sql>
+
+	<!--####################select#####################-->
+
+	<select id="selectByPrimaryKey" parameterType="Long" resultMap="baseResultMap" >  <!--resultType="SysUser" 自动映射-->
+		select
+		<include refid="base_column_list" />
+		from sys_user u where u.id = #{id, jdbcType=BIGINT}
+	</select>
+
+	<select id="selectByUsernameAndDeleteStatus1" parameterType="map" resultMap="baseResultMap" >
+		select
+		<include refid="base_column_list" />
+		from sys_user u
+		where u.username like CONCAT('%', #{username}, '%')
+		and u.delete_status = #{deleteStatus}
+	</select>
+
+	<select id="selectByUsernameAndDeleteStatus2"  resultMap="baseResultMap" >
+		select
+		<include refid="base_column_list" />
+		from sys_user u
+		where u.username like CONCAT('%', #{username}, '%')
+		and u.delete_status = #{deleteStatus}
+	</select>
+
+	<select id="selectByUsernameAndDeleteStatus3"
+			parameterType="com.enjoy.quickstart.com.enjoy.myorm.model.querybean.SysUserUsernameDeleteStatusQueryBean" resultMap="baseResultMap" >
+		select
+		<include refid="base_column_list" />
+		from sys_user u
+		where u.username like CONCAT('%', #{username}, '%')
+		and u.delete_status = #{deleteStatus}
+	</select>
+
+	<select id="selectBySymbol" resultMap="baseResultMap">
+		select ${inCol} from ${tableName} u where u.delete_status = #{deleteStatus}
+		order by ${orderStr}
+	</select>
+
+	<select id="selectIfOper" resultMap="baseResultMap">
+		select
+		<include refid="base_column_list" />
+		from sys_user u
+		where 1=1
+		<if test="username != null and username != '' ">
+			and u.username like CONCAT('%', #{username}, '%')
+		</if>
+		<if test="deleteStatus != null ">
+			and u.delete_status = #{deleteStatus}
+		</if>
+	</select>
+
+	<select id="selectIfOperWhere" resultMap="baseResultMap">
+		select
+		<include refid="base_column_list" />
+		from sys_user u
+		<where>
+			<if test="username != null and username != '' ">
+				and u.username like CONCAT('%', #{username}, '%')
+			</if>
+			<if test="deleteStatus != null ">
+				and u.delete_status = #{deleteStatus}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectForeach4In" resultMap="baseResultMap">
+		select
+		<include refid="base_column_list" />
+		from sys_user u
+		where u.username in
+		<foreach collection="array" open="(" close=")" item="username" index="i" separator=",">
+			#{username}
+		</foreach>
+	</select>
+
+	<select id="selectChooseOper" resultMap="baseResultMap">
+		select
+		<include refid="base_column_list" />
+		from sys_user u
+		<where>
+			<choose>
+				<when test="username != null and username != ''">
+					and u.username like CONCAT('%', #{username}, '%')
+				</when>
+				<when test="deleteStatus != null">
+					and delete_status = #{deleteStatus}
+				</when>
+				<otherwise>
+					and 1=1
+				</otherwise>
+			</choose>
+		</where>
+	</select>
+
+	<!--####################insert#####################-->
+
+	<insert id="insert" parameterType="SysUser">
+		<selectKey keyProperty="id" order="BEFORE" resultType="Long">
+			select last_insert_id()
+		</selectKey>
+		insert into sys_user (id, username, password, nickname, delete_status, create_time, update_time, org_id)
+		values(
+			#{id},
+			#{username},
+			#{password},
+			#{nickname},
+			#{deleteStatus},
+			#{createTime, jdbcType=DATE}, #{updateTime, jdbcType=DATE},
+			#{orgId}
+		)
+	</insert>
+
+	<insert id="insert1" parameterType="SysUser" useGeneratedKeys="true" keyProperty="id">
+		insert into sys_user (id, username, password, nickname, delete_status, create_time, update_time, org_id)
+		values(
+			#{id},
+			#{username},
+			#{password},
+			#{nickname},
+			#{deleteStatus},
+			#{createTime, jdbcType=DATE}, #{updateTime, jdbcType=DATE},
+			#{orgId}
+		)
+	</insert>
+
+	<insert id="insert2" parameterType="SysUser">
+		insert into sys_user (id, username, password, nickname, delete_status, create_time, update_time, org_id)
+		values(
+			#{id},
+			#{username},
+			#{password},
+			#{nickname},
+			#{deleteStatus},
+			#{createTime, jdbcType=DATE}, #{updateTime, jdbcType=DATE},
+			#{orgId}
+		)
+		<selectKey keyProperty="id" order="AFTER" resultType="Long">
+			select last_insert_id()
+		</selectKey>
+	</insert>
+
+	<insert id="insertSelective" parameterType="SysUser">
+		<selectKey keyProperty="id" order="AFTER" resultType="Long">
+			select last_insert_id()
+		</selectKey>
+		insert into sys_user
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			id,
+			<if test="username != null">
+				username,
+			</if>
+			<if test="password != null">
+				password,
+			</if>
+			<if test="nickname != null">
+				nickname,
+			</if>
+			<if test="deleteStatus != null">
+				delete_status,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="updateTime != null">
+				update_time,
+			</if>
+		</trim>
+		values
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			id,
+			<if test="username != null">
+				#{username},
+			</if>
+			<if test="password != null">
+				#{password},
+			</if>
+			<if test="nickname != null">
+				#{nickname},
+			</if>
+			<if test="deleteStatus != null">
+				#{deleteStatus},
+			</if>
+			<if test="createTime != null">
+				#{createTime},
+			</if>
+			<if test="updateTime != null">
+				#{updateTime},
+			</if>
+		</trim>
+	</insert>
+
+	<insert id="insertForeach4In" parameterType="SysUser">
+		insert into sys_user (<include refid="base_column_list" />)
+		values
+		<foreach collection="list"  separator="," index="i" item="user">
+			(
+				#{user.id},
+				#{user.username},
+				#{user.password},
+				#{user.nickname},
+				#{user.createTime},
+				#{user.updateTime},
+				#{user.deleteStatus},
+				#{user.roleId},
+				#{user.orgId}
+			)
+		</foreach>
+	</insert>
+
+	<!--####################update#####################-->
+
+	<update id="updateIfOper" parameterType="SysUser">
+		update sys_user u
+		set
+		<if test="username != null">
+			username = #{username},
+		</if>
+		<if test="password != null">
+			password = #{password},
+		</if>
+		<if test="nickname != null">
+			nickname = #{nickname},
+		</if>
+		<if test="deleteStatus != null">
+			delete_status = #{deleteStatus},
+		</if>
+		<if test="updateTime != null">
+			update_time = #{updateTime},
+		</if>
+		id = #{id}
+		where id = #{id}
+	</update>
+
+	<update id="updateIfOperWhere" parameterType="SysUser">
+		update sys_user u
+		<set>
+			<if test="username != null">
+				username = #{username},
+			</if>
+			<if test="password != null">
+				password = #{password},
+			</if>
+			<if test="nickname != null">
+				nickname = #{nickname},
+			</if>
+			<if test="deleteStatus != null">
+				delete_status = #{deleteStatus},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<!--####################delete#####################-->
+
+	<delete id="deleteByPrimaryKey" parameterType="Long">
+		delete from sys_user where id = #{id}
+	</delete>
+
+
+	<!--####################关联操作#####################-->
+	<!--#####一对一####-->
+	<resultMap id="baseResultMap2" type="TUser">
+		<id column="id" property="id" jdbcType="BIGINT"/>
+		<result column="username" property="username" />
+		<result column="password" property="password"  />
+		<result column="nickname" property="nickname"  />
+		<result column="delete_status" property="deleteStatus"  />
+		<result column="create_time" property="createTime"  />
+		<result column="update_time" property="updateTime"  />
+	</resultMap>
+
+	<resultMap id="userOrgResultMap" type="TUser" extends="baseResultMap2">
+		<association property="organization" javaType="TOrg" >
+			<id column="org_id" property="id" />
+			<result column="org_name" property="orgName"/>
+			<result column="org_code" property="orgCode"/>
+			<result column="org_delete_status" property="deleteStatus"/>
+			<result column="pid" property="pid" />
+		</association>
+	</resultMap>
+
+	<resultMap id="userOrgResultMap2" type="TUser" extends="baseResultMap2">
+		<association property="organization" column="{id=org_id}" select="com.enjoy.quickstart.mapper.SysUserMapper.selectOrgById"  fetchType="lazy"/>
+	</resultMap>
+
+	<select id="selectUserOrg" resultMap="userOrgResultMap">
+		select
+		u.id, u.username, u.password, u.nickname, u.delete_status, u.create_time, u.update_time,
+		o.id org_id,
+		o.org_name,
+		o.org_code,
+		o.delete_status org_delete_status,
+		o.pid
+		from sys_user u, sys_org o
+		where u.org_id = o.id
+	</select>
+
+	<select id="selectUserOrg2" resultMap="userOrgResultMap2">
+		select u.id, u.username, u.password, u.nickname, u.delete_status, u.create_time, u.update_time,
+			u.org_id
+		from sys_user u
+	</select>
+	<select id="selectOrgById" resultType="TOrg">
+		select * from sys_org o where o.id = #{id}
+	</select>
+
+	<!--#####一对多####-->
+	<resultMap id="userRelationResultMap" type="TUser" extends="baseResultMap2">
+		<collection property="relations" ofType="TRelation">
+			<result column="relation_id" property="id" />
+			<result column="relation_name" property="relationName" />
+			<result column="relation_age" property="relationAge" />
+			<result column="relation_delete_status" property="deleteStatus" />
+		</collection>
+	</resultMap>
+
+	<resultMap id="userRelationResultMap2" type="TUser" extends="baseResultMap2">
+		<collection property="relations" column="{id=id}" ofType="TRelation" fetchType="lazy" select="selectRelationsByUserId"/>
+	</resultMap>
+
+	<select id="selectUserRelations" resultMap="userRelationResultMap">
+		select
+		u.id, u.username, u.password, u.nickname, u.delete_status, u.create_time, u.update_time,
+		r.id relation_id,
+		r.relation_name, r.relation_age,
+		r.delete_status relation_delete_status
+		from sys_user u, sys_relation r
+		where r.user_id = u.id
+	</select>
+
+	<select id="selectUserRelations2" resultMap="userRelationResultMap2">
+		select u.id, u.username, u.password, u.nickname, u.delete_status, u.create_time, u.update_time
+		from sys_user u
+	</select>
+	<select id="selectRelationsByUserId" resultType="TRelation">
+		select * from sys_relation r where r.user_id = #{id}
+	</select>
+
+	<!--#####多对多####-->
+	<resultMap id="userRoleResultMap" type="TUser" extends="baseResultMap2">
+		<collection property="roles" ofType="TRole">
+			<result column="role_id" property="id" />
+			<result column="role_name" property="roleName" />
+			<result column="role_code" property="roleCode" />
+			<result column="role_delete_status" property="deleteStatus" />
+		</collection>
+	</resultMap>
+
+	<select id="selectUserRoles" resultMap="userRoleResultMap">
+		select
+		u.id, u.username, u.password, u.nickname, u.delete_status, u.create_time, u.update_time,
+		r.id role_id,
+		r.role_name, r.role_code,
+		r.delete_status role_delete_status
+		from sys_user u, sys_user_role ur, sys_role r
+		where ur.role_id = r.id
+			and ur.user_id = u.id
+	</select>
+
+	<resultMap id="userRoleResultMap2" type="TUser" extends="baseResultMap2">
+		<collection property="roles" column="{id=id}" ofType="TRole" fetchType="lazy" select="selectRoleByUserId"/>
+	</resultMap>
+
+	<select id="selectUserRoles2" resultMap="userRoleResultMap2">
+		select u.id, u.username, u.password, u.nickname, u.delete_status, u.create_time, u.update_time
+		from sys_user u
+	</select>
+
+	<select id="selectRoleByUserId" resultType="TRole">
+		select r.id, r.role_name, r.role_code, r.delete_status
+		 from sys_user_role ur, sys_role r
+		  where ur.user_id = #{id}
+		  and r.id = ur.role_id
+	</select>
+
+	<!--#####鉴别器####-->
+	<resultMap id="discriminatorResultMap" type="TUser">
+		<discriminator javaType="int" column="sex">
+			<case value="1" resultMap="userHealthReportMan" />
+			<case value="2" resultMap="userHealthReportWoman" />
+		</discriminator>
+	</resultMap>
+	<resultMap id="userHealthReportMan" type="TUser" extends="baseResultMap2">
+		<association property="healthReport" column="{id=id}" select="selectHealthReportManByUserId" />
+	</resultMap>
+	<resultMap id="userHealthReportWoman" type="TUser" extends="baseResultMap2">
+		<association property="healthReport" column="{id=id}" select="selectHealthReportWomanByUserId" />
+	</resultMap>
+
+	<select id="selectDiscriminator" resultMap="discriminatorResultMap">
+		select u.id, u.username, u.password, u.nickname, u.delete_status, u.create_time, u.update_time,
+		u.sex
+		from sys_user u
+	</select>
+
+	<select id="selectHealthReportManByUserId" resultType="TManHealthReport">
+		select * from t_health_report_man where user_id = #{id}
+	</select>
+	<select id="selectHealthReportWomanByUserId" resultType="TWomanHealthReport">
+		select * from t_health_report_woman where user_id = #{id}
+	</select>
+
+</mapper>

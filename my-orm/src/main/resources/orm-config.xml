@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration>
+
+    <properties resource="db.properties" />
+
+    <!--配置environment环境-->
+    <environments default="dev">
+        <environment id="dev">
+            <dataSource>
+                <property name="driver" value="${db.driver}"/>
+                <property name="username" value="${db.username}"/>
+                <property name="password" value="${db.password}"/>
+                <property name="url" value="${db.url}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!--映射文件，mapper的配置文件-->
+    <mappers folder="mapper" suffix="Mapper.xml"/>
+</configuration>

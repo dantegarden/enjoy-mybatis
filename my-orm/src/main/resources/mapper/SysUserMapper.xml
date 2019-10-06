@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<mapper namespace="com.enjoy.myorm.mapper.SysUserMapper">
+    <select id="selectByPrimaryKey" resultType="com.enjoy.myorm.model.entity.SysUser">
+        SELECT
+            id, username, password
+        FROM
+            sys_user
+        WHERE
+            id = ?
+    </select>
+
+    <select id="selectAll" resultType="com.enjoy.myorm.model.entity.SysUser">
+        SELECT
+            id, username, password
+        FROM
+            sys_user
+    </select>
+
+    <update id="updateUsername">
+        update sys_user u
+        set
+            username = ?
+        where id = ?
+    </update>
+
+</mapper>
